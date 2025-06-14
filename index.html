@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Jogo dos Amigos!</title>
+    <style>
+        /* Estilos globais para ocupar toda a tela e remover margens */
+        html, body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* Esconde barras de rolagem */
+            width: 100vw; /* 100% da largura da viewport */
+            height: 100vh; /* 100% da altura da viewport */
+            background: #222; /* Fundo escuro padrão */
+            font-family: 'Arial', sans-serif; /* Fonte padrão */
+        }
+
+        /* Estilo do Canvas para preencher a tela com um gradiente */
+        #gameCanvas {
+            display: block; /* Remove espaços extras */
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(135deg, #222 0%, #444 100%); /* Gradiente de fundo */
+        }
+
+        /* Estilo do botão de tela cheia (canto superior direito) */
+        #fullscreenBtn {
+            position: absolute;
+            top: 20px; /* Distância do topo */
+            right: 20px; /* Distância da direita */
+            z-index: 10; /* Garante que fique acima de outros elementos */
+            background: rgba(0,0,0,0.5); /* Fundo semi-transparente escuro */
+            border: 2px solid rgba(255,255,255,0.3); /* Borda sutil e brilhante */
+            border-radius: 50%; /* Torna o botão redondo */
+            width: 60px; /* Largura do botão */
+            height: 60px; /* Altura do botão */
+            display: flex; /* Para centralizar o SVG */
+            justify-content: center; /* Centraliza horizontalmente */
+            align-items: center; /* Centraliza verticalmente */
+            cursor: pointer; /* Muda o cursor para indicar que é clicável */
+            padding: 0; /* Remove padding padrão do botão */
+            transition: background 0.2s, transform 0.2s, box-shadow 0.2s; /* Transição suave no hover */
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4); /* Sombra para profundidade */
+        }
+
+        /* Estilo do ícone SVG dentro do botão de tela cheia */
+        #fullscreenBtn svg {
+            width: 30px; /* Tamanho do ícone SVG */
+            height: 30px; /* Tamanho do ícone SVG */
+            fill: #fff; /* Cor do ícone SVG (branco) */
+        }
+
+        /* Efeito de hover para o botão de tela cheia */
+        #fullscreenBtn:hover {
+            background: rgba(0,0,0,0.7); /* Fundo mais escuro no hover */
+            transform: scale(1.05); /* Aumenta um pouco no hover */
+            box-shadow: 0 6px 20px rgba(0,0,0,0.6); /* Sombra maior no hover */
+        }
+
+        /* Estilos para o menu inicial/final */
+        #centerMenu {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%,-50%);
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Estilos dos botões INICIAR/REINICIAR */
+        #startButton, #restartButton {
+            background: linear-gradient(145deg, #6dd5ed 0%, #2193b0 100%); /* Gradiente azul claro */
+            border: none;
+            border-radius: 32px;
+            padding: 24px 64px;
+            font-size: 2rem;
+            font-weight: bold;
+            color: #fff; /* Texto branco */
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3), 0 1px 0 rgba(255,255,255,0.2) inset; /* Sombra e brilho interno */
+            cursor: pointer;
+            margin: 16px 0;
+            transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.4); /* Sombra no texto */
+        }
+
+        /* Efeito de hover para os botões INICIAR/REINICIAR */
+        #startButton:hover, #restartButton:hover {
+            background: linear-gradient(145deg, #2193b0 0%, #6dd5ed 100%); /* Inverte o gradiente no hover */
+            transform: scale(1.05); /* Aumenta um pouco no hover */
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5); /* Sombra mais intensa no hover */
+        }
+
+        /* Esconde o botão de reiniciar por padrão */
+        #restartButton {
+            display: none;
+            margin-top: 32px; /* Espaço extra acima do botão de reiniciar */
+        }
+
+        /* Estilos do texto FIM DE JOGO */
+        #gameOverText {
+            color: #fff;
+            font-size: 3rem;
+            font-weight: bold;
+            text-align: center;
+            text-shadow: 0 4px 24px rgba(0,0,0,0.7);
+            margin-bottom: 0;
+            margin-top: 0;
+        }
+
+        /* Estilos da pontuação final */
+        #finalScore {
+            color: #fff;
+            font-size: 2rem;
+            text-align: center;
+            text-shadow: 0 2px 12px rgba(0,0,0,0.7);
+            margin-top: 0;
+            margin-bottom: 0;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+    
+    <button id="fullscreenBtn" title="Tela cheia">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M0 0h24v24H0z" fill="none"/>
+            <path d="M1.5 1.5v5h2V5h15v14h-3v1.5h5v-17h-19zm3 3v12h12v-12h-12z"/>
+        </svg>
+    </button>
+
+    <div id="centerMenu">
+        <button id="startButton">INICIAR</button>
+        <button id="restartButton">REINICIAR</button>
+    </div>
+
+    <script>
+        // --- Variáveis globais do jogo ---
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
+        const centerMenu = document.getElementById('centerMenu');
+        const startButton = document.getElementById('startButton');
+        const restartButton = document.getElementById('restartButton');
+
+        let bolhas = [];
+        let explosoes = [];
+        let score = 0;
+        let gameActive = false;
+        let gameInterval;
+        let timeLeft = 30;
+        const gameDuration = 30;
+
+        // --- Carregamento das Imagens dos Amigos e Configuração de Pontuação ---
+        // CUIDADO: O CAMINHO DA PASTA AGORA É './pessoas/'
+        const imageConfigs = [
+          { path: './pessoas/alan.jpg', value: 5, explosionColor: 'hsl(60, 100%, 70%)' },  // Alan
+          { path: './pessoas/joneca.jpg', value: -5, explosionColor: 'hsl(0, 100%, 70%)' }, // Joneca
+          { path: './pessoas/jones.jpg', value: 2, explosionColor: 'hsl(120, 100%, 70%)' }, // Jones
+          { path: './pessoas/wesley.jpg', value: 2, explosionColor: 'hsl(120, 100%, 70%)' },  // Wesley
+          // Adicione mais caminhos aqui se você tiver mais fotos
+          // Exemplo: { path: './pessoas/seu_amigo5.jpg', value: 10, explosionColor: 'hsl(200, 100%, 70%)' },
+        ];
+
+        const friendImages = []; // Array para armazenar os objetos Image carregados
+
+        function loadImages() {
+          let loadedCount = 0;
+          imageConfigs.forEach((config, index) => {
+            const img = new Image();
+            img.src = config.path;
+            img.onload = () => {
+              loadedCount++;
+              friendImages[index] = { image: img, value: config.value, explosionColor: config.explosionColor };
+              if (loadedCount === imageConfigs.length) {
+                console.log('Todas as imagens de amigos carregadas!');
+              }
+            };
+            img.onerror = () => {
+              console.error(`Erro ao carregar imagem: ${config.path}. Verifique o caminho e o nome do arquivo.`);
+            };
+          });
+        }
+
+        loadImages(); // Inicia o processo de carregamento das imagens ao carregar o script
+
+        // --- Funções de Utilitário e Animação ---
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        function desenharFotoCircular(b) {
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(b.x, b.y, b.raio, 0, Math.PI * 2);
+            ctx.closePath();
+            ctx.clip();
+
+            if (b.image && b.image.complete) {
+                ctx.drawImage(
+                    b.image,
+                    b.x - b.raio,
+                    b.y - b.raio,
+                    b.raio * 2,
+                    b.raio * 2
+                );
+            } else {
+                ctx.beginPath();
+                ctx.arc(b.x, b.y, b.raio, 0, Math.PI * 2);
+                ctx.fillStyle = 'gray';
+                ctx.fill();
+            }
+            ctx.restore();
+
+            ctx.beginPath();
+            ctx.arc(b.x, b.y, b.raio, 0, Math.PI * 2);
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.arc(b.x + 2, b.y + 2, b.raio, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+            ctx.fill();
+        }
+
+        function criarExplosao(x, y, corBase) {
+            explosoes.push({
+                x, y, cor: corBase,
+                raio: 0, 
+                maxRaio: 60,
+                alpha: 1, 
+                tempo: 0
+            });
+        }
+
+        function desenharExplosoes() {
+            for (let i = explosoes.length - 1; i >= 0; i--) {
+                const e = explosoes[i];
+                
+                e.raio += 4; 
+                e.alpha -= 0.05; 
+                
+                if (e.alpha <= 0 || e.raio > e.maxRaio) {
+                    explosoes.splice(i, 1);
+                    continue;
+                }
+
+                ctx.save();
+                ctx.globalAlpha = e.alpha;
+
+                ctx.beginPath();
+                ctx.arc(e.x, e.y, e.raio, 0, Math.PI * 2);
+                ctx.strokeStyle = e.cor;
+                ctx.lineWidth = 4 * e.alpha; 
+                ctx.shadowColor = e.cor;
+                ctx.shadowBlur = 15 * e.alpha;
+                ctx.stroke();
+                ctx.closePath();
+
+                for (let j = 0; j < 6; j++) {
+                    const ang = (Math.PI * 2 / 6) * j + e.tempo * 0.1;
+                    const px = e.x + Math.cos(ang) * e.raio * 0.5;
+                    const py = e.y + Math.sin(ang) * e.raio * 0.5;
+                    ctx.beginPath();
+                    ctx.arc(px, py, 3 * e.alpha, 0, Math.PI * 2);
+                    ctx.fillStyle = "#fff";
+                    ctx.fill();
+                    ctx.closePath();
+                }
+
+                ctx.restore();
+                e.tempo++;
+            }
+        }
+
+        function criarBolha() {
+            if (!gameActive) return;
+            if (bolhas.length > 15) return; 
+
+            if (friendImages.length === 0 || friendImages.some(imgData => !imgData.image || !imgData.image.complete)) {
+                // Se as imagens não carregaram, a bolha não é criada.
+                // Isso evita erros de tentar desenhar imagem não carregada.
+                console.warn("Imagens ainda não carregadas, bolha não criada.");
+                return; 
+            }
+
+            const x = Math.random() * (canvas.width - 2 * 60) + 60;
+            const y = -60; // Começa acima da tela
+            const raio = Math.random() * 20 + 40; // Raio entre 40 e 60
+            
+            const velocidadeY = (Math.random() * 1.5 + 0.8) * (canvas.height / 800); // Velocidade de queda
+            const velocidadeX = ((Math.random() - 0.5) * 1) * (canvas.width / 1200); // Velocidade lateral
+
+            const randomImageConfig = friendImages[Math.floor(Math.random() * friendImages.length)];
+            
+            bolhas.push({ 
+                x, 
+                y, 
+                raio, 
+                image: randomImageConfig.image, 
+                value: randomImageConfig.value, 
+                explosionColor: randomImageConfig.explosionColor, 
+                velocidadeY, 
+                velocidadeX 
+            });
+        }
+
+        function animar() {
+            // O loop de animação continua rodando se o jogo estiver ativo OU se houver explosões a serem desenhadas
+            if (!gameActive && explosoes.length === 0) {
+                return; // Para a animação do requestAnimationFrame
+            }
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height); // Limpa o canvas a cada frame
+
+            // Exibe pontuação e tempo
+            ctx.fillStyle = '#fff'; 
+            ctx.font = 'bold 2.2rem Arial';
+            ctx.textAlign = 'left';
+            ctx.shadowColor = "#000";
+            ctx.shadowBlur = 8;
+            ctx.fillText(`Pontuação: ${score}`, 32, 56);
+            ctx.textAlign = 'right';
+            ctx.fillText(`Tempo: ${timeLeft}s`, canvas.width - 32, 56);
+            ctx.shadowBlur = 0;
+
+            // --- AQUI É ONDE AS BOLHAS SE MOVEM E SÃO REMOVIDAS ---
+            for (let i = bolhas.length - 1; i >= 0; i--) { // Loop de trás para frente para remoção segura
+                const b = bolhas[i];
+                
+                // ATUALIZA A POSIÇÃO DA BOLHA: FAZ ELA DESCER E SE MOVER PARA OS LADOS
+                b.y += b.velocidadeY; // Faz a bolha descer
+                b.x += b.velocidadeX; // Faz a bolha se mover para os lados
+
+                // REMOÇÃO E REFLEXÃO DE BORDAS:
+                // Se a bolha saiu da tela por baixo, remove ela
+                if (b.y - b.raio > canvas.height) { // Verifica se a bolha está completamente fora da tela
+                    bolhas.splice(i, 1);
+                    continue; // Pula para a próxima bolha no loop
+                }
+                // Se a bolha atingiu as bordas laterais, inverte a direção horizontal
+                if (b.x + b.raio < 0 || b.x - b.raio > canvas.width) {
+                    b.velocidadeX *= -1; // Inverte a velocidade X
+                }
+
+                desenharFotoCircular(b); // Desenha a bolha na nova posição
+            }
+            
+            // Cria novas bolhas aleatoriamente se o jogo estiver ativo
+            if (gameActive && Math.random() < 0.04) criarBolha();
+
+            // Desenha as animações de explosão
+            desenharExplosoes();
+
+            requestAnimationFrame(animar); // Solicita o próximo quadro de animação
+        }
+
+        // --- Funções de Controle do Jogo ---
+
+        function startGame() {
+            score = 0;
+            timeLeft = gameDuration;
+            bolhas.length = 0;
+            explosoes.length = 0;
+            gameActive = true;
+            centerMenu.style.display = 'none';
+            
+            gameInterval = setInterval(() => {
+                timeLeft--;
+                if (timeLeft <= 0) {
+                    clearInterval(gameInterval);
+                    gameActive = false;
+                    setTimeout(displayGameOverScreen, 400);
+                }
+            }, 1000);
+
+            animar(); // Inicia o loop de animação
+        }
+
+        function displayGameOverScreen() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 4rem Arial';
+            ctx.textAlign = 'center';
+            ctx.shadowColor = "#000";
+            ctx.shadowBlur = 16;
+            ctx.fillText('FIM DE JOGO!', canvas.width / 2, canvas.height / 2 - 60);
+
+            ctx.font = 'bold 2.5rem Arial';
+            ctx.shadowBlur = 8;
+            ctx.fillText(`Sua Pontuação Final: ${score}`, canvas.width / 2, canvas.height / 2 + 10);
+            ctx.shadowBlur = 0;
+
+            restartButton.style.display = 'block';
+            startButton.style.display = 'none';
+            centerMenu.style.display = 'flex';
+            centerMenu.style.top = `calc(50% + 80px)`;
+            centerMenu.style.left = '50%';
+            centerMenu.style.transform = 'translate(-50%, 0)';
+        }
+
+        // --- Eventos de Interação ---
+
+        canvas.addEventListener('pointerdown', function(e) {
+            if (!gameActive) return;
+
+            const rect = canvas.getBoundingClientRect();
+            const mx = (e.clientX - rect.left) * (canvas.width / rect.width);
+            const my = (e.clientY - rect.top) * (canvas.height / rect.height);
+
+            for (let i = bolhas.length - 1; i >= 0; i--) {
+                const b = bolhas[i];
+                const dx = mx - b.x, dy = my - b.y;
+                
+                if (dx*dx + dy*dy < b.raio*b.raio) {
+                    criarExplosao(b.x, b.y, b.explosionColor); 
+                    bolhas.splice(i, 1);
+                    
+                    score += b.value; 
+                    if (score < 0) score = 0; 
+                    
+                    break; 
+                }
+            }
+        });
+
+        fullscreenBtn.onclick = () => {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                document.exitFullscreen();
+            }
+        };
+
+        startButton.onclick = startGame;
+        restartButton.onclick = () => {
+            restartButton.style.display = 'none';
+            centerMenu.style.top = '50%';
+            centerMenu.style.transform = 'translate(-50%,-50%)';
+            startGame();
+        };
+
+        // --- Inicialização do Jogo ---
+        centerMenu.style.display = 'flex';
+        restartButton.style.display = 'none';
+    </script> 
+</body>
+</html>
