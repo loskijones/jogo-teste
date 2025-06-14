@@ -24,7 +24,11 @@
             left: 0;
             width: 100vw;
             height: 100vh;
-            background: linear-gradient(135deg, #222 0%, #444 100%); /* Gradiente de fundo */
+            background-image: url('./backgrounds/ceu_estrelado.png'); /* Caminho da sua imagem */
+            background-size: cover; /* Faz a imagem cobrir toda a área, cortando se necessário */
+            background-position: center; /* Centraliza a imagem */
+            background-repeat: no-repeat; /* Evita que a imagem se repita */
+            background-color: #000; /* Cor preta para o espaço não preenchido pela imagem */
         }
 
         /* Estilo do botão de tela cheia (canto superior direito) */
@@ -61,46 +65,104 @@
             box-shadow: 0 6px 20px rgba(0,0,0,0.6); /* Sombra maior no hover */
         }
 
-        /* Estilos para o menu inicial/final */
-        #centerMenu {
+        /* Estilo do botão MENU (canto superior esquerdo) */
+        #menuBtn {
+            position: absolute;
+            top: 20px; /* Distância do topo */
+            left: 20px; /* Distância da esquerda */
+            z-index: 10;
+            background: rgba(0,0,0,0.5);
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%; /* Torna o botão redondo */
+            width: 60px; /* Largura do botão */
+            height: 60px; /* Altura do botão */
+            display: flex; /* Para centralizar o texto/ícone */
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            padding: 0;
+            color: #fff; /* Cor do texto "MENU" */
+            font-size: 1.2rem;
+            font-weight: bold;
+            transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+        }
+
+        #menuBtn:hover {
+            background: rgba(0,0,0,0.7);
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.6);
+        }
+
+        /* Estilos para os containers de menu (central, edição, leaderboard, input nome) */
+        .menu-container {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%,-50%);
             z-index: 10;
-            display: flex;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 15px;
+            padding: 30px;
+            color: #fff;
+            display: none; /* AGORA TODOS ESTÃO OCULTOS POR PADRÃO PELO CSS */
             flex-direction: column;
             align-items: center;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            max-width: 90%;
+            width: 400px;
         }
 
-        /* Estilos dos botões INICIAR/REINICIAR */
-        #startButton, #restartButton {
-            background: linear-gradient(145deg, #6dd5ed 0%, #2193b0 100%); /* Gradiente azul claro */
+        /* Estilos do menu principal (INICIAR/REINICIAR) */
+        #centerMenu {
+            padding-bottom: 20px; 
+        }
+        #centerMenu h3 {
+            font-size: 2.2rem;
+            color: #6dd5ed;
+            margin-bottom: 20px;
+        }
+
+        /* Estilos dos botões INICIAR/REINICIAR/INÍCIO (gerais) */
+        .game-button {
             border: none;
             border-radius: 32px;
-            padding: 24px 64px;
-            font-size: 2rem;
+            padding: 20px 50px; 
+            font-size: 1.8rem; 
             font-weight: bold;
-            color: #fff; /* Texto branco */
-            box-shadow: 0 8px 32px rgba(0,0,0,0.3), 0 1px 0 rgba(255,255,255,0.2) inset; /* Sombra e brilho interno */
+            color: #fff;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3), 0 1px 0 rgba(255,255,255,0.2) inset;
             cursor: pointer;
-            margin: 16px 0;
+            margin: 10px 0; 
             transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
-            text-shadow: 0 2px 8px rgba(0,0,0,0.4); /* Sombra no texto */
+            text-shadow: 0 2px 8px rgba(0,0,0,0.4);
         }
-
-        /* Efeito de hover para os botões INICIAR/REINICIAR */
-        #startButton:hover, #restartButton:hover {
-            background: linear-gradient(145deg, #2193b0 0%, #6dd5ed 100%); /* Inverte o gradiente no hover */
-            transform: scale(1.05); /* Aumenta um pouco no hover */
-            box-shadow: 0 10px 40px rgba(0,0,0,0.5); /* Sombra mais intensa no hover */
+        .game-button:hover {
+            transform: scale(1.05);
         }
-
-        /* Esconde o botão de reiniciar por padrão */
+        /* Cor para o botão INICIAR */
+        #startButton {
+            background: linear-gradient(145deg, #6dd5ed 0%, #2193b0 100%);
+        }
+        #startButton:hover {
+            background: linear-gradient(145deg, #2193b0 0%, #6dd5ed 100%);
+        }
+        /* Cor para o botão REINICIAR (azul) */
         #restartButton {
-            display: none;
-            margin-top: 32px; /* Espaço extra acima do botão de reiniciar */
+            background: linear-gradient(145deg, #6dd5ed 0%, #2193b0 100%);
         }
+        #restartButton:hover {
+            background: linear-gradient(145deg, #2193b0 0%, #6dd5ed 100%);
+        }
+        /* Cor para o novo botão INÍCIO (vermelho) */
+        #homeButton {
+            background: linear-gradient(145deg, #ff6b6b 0%, #ee3c3c 100%);
+        }
+        #homeButton:hover {
+            background: linear-gradient(145deg, #ee3c3c 0%, #ff6b6b 100%);
+        }
+
 
         /* Estilos do texto FIM DE JOGO */
         #gameOverText {
@@ -122,11 +184,157 @@
             margin-top: 0;
             margin-bottom: 0;
         }
+
+        /* --- Estilos do Menu de Edição (reuso de .menu-container) --- */
+        #editMenu {
+            /* display: none; controlado pelo JS */
+        }
+        #editMenu h2 {
+            margin-top: 0;
+            color: #6dd5ed;
+            font-size: 2.2rem;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+        }
+        .edit-field {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 80%;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+        .edit-field label {
+            flex-basis: 60%;
+            text-align: left;
+        }
+        .edit-field input[type="number"] {
+            flex-basis: 35%;
+            padding: 8px;
+            border-radius: 8px;
+            border: 1px solid #aaa;
+            background-color: #eee;
+            color: #333;
+            font-size: 1.1rem;
+            text-align: center;
+        }
+        #saveConfigBtn {
+            background: linear-gradient(145deg, #a8ff78 0%, #78ffd6 100%); /* Gradiente verde/azul */
+            border: none;
+            border-radius: 32px;
+            padding: 15px 40px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #333;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3), 0 1px 0 rgba(255,255,255,0.2) inset;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background 0.2s, transform 0.2s;
+        }
+        #saveConfigBtn:hover {
+            background: linear-gradient(145deg, #78ffd6 0%, #a8ff78 100%);
+            transform: scale(1.05);
+        }
+        /* Botão de resetar placar */
+        #resetLeaderboardBtn {
+            background: linear-gradient(145deg, #ff6b6b 0%, #ee3c3c 100%); 
+            margin-top: 15px; 
+            padding: 10px 25px; 
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 32px;
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3), 0 1px 0 rgba(255,255,255,0.2) inset;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.2s;
+        }
+        #resetLeaderboardBtn:hover {
+            background: linear-gradient(145deg, #ee3c3c 0%, #ff6b6b 100%);
+            transform: scale(1.05);
+        }
+
+
+        /* --- Estilos do Leaderboard (reuso de .menu-container) --- */
+        #leaderboardMenu {
+            /* display: none; controlado pelo JS */
+        }
+        #leaderboardMenu h3 {
+            margin-top: 0;
+            color: #fff;
+            font-size: 2.2rem; 
+            text-shadow: 0 2px 8px #000a;
+            margin-bottom: 15px;
+        }
+        #leaderboardList {
+            list-style: none; 
+            padding: 0;
+            width: 100%;
+            text-align: left;
+            font-size: 1.1rem;
+        }
+        #leaderboardList li {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        #leaderboardList li:last-child {
+            border-bottom: none; 
+        }
+        .leaderboard-name {
+            flex-grow: 1;
+        }
+        .leaderboard-score {
+            font-weight: bold;
+        }
+        /* Estilos das medalhas */
+        .medal-gold { color: gold; text-shadow: 0 0 5px orange; }
+        .medal-silver { color: silver; text-shadow: 0 0 5px gray; }
+        .medal-bronze { color: #cd7f32; text-shadow: 0 0 5px #8b4513; } /* Bronze */
+
+
+        /* Input para nome do jogador após o game over (reuso de .menu-container) */
+        #playerNameInputContainer {
+            z-index: 30; 
+        }
+        #playerNameInputContainer h3 {
+            margin-top: 0;
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+        }
+        #playerNameInput {
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #aaa;
+            background-color: #eee;
+            color: #333;
+            font-size: 1.2rem;
+            width: 80%;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        #submitNameBtn {
+            background: linear-gradient(145deg, #a8ff78 0%, #78ffd6 100%);
+            border: none;
+            border-radius: 32px;
+            padding: 12px 30px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #333;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.2s;
+        }
+        #submitNameBtn:hover {
+            transform: scale(1.05);
+        }
     </style>
 </head>
 <body>
     <canvas id="gameCanvas"></canvas>
     
+    <button id="menuBtn">MENU</button>
+
     <button id="fullscreenBtn" title="Tela cheia">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
             <path d="M0 0h24v24H0z" fill="none"/>
@@ -134,61 +342,186 @@
         </svg>
     </button>
 
-    <div id="centerMenu">
-        <button id="startButton">INICIAR</button>
-        <button id="restartButton">REINICIAR</button>
+    <div id="centerMenu" class="menu-container">
+        <h3>Jogo dos Amigos!</h3> 
+        <button id="startButton" class="game-button">INICIAR</button>
+        <button id="restartButton" class="game-button">REINICIAR</button> 
+        <button id="homeButton" class="game-button">INÍCIO</button>
+        <button id="showLeaderboardBtn" class="game-button" style="background: linear-gradient(145deg, #ffa778 0%, #ff6b6b 100%);">
+            Placar de Recordes
+        </button>
     </div>
 
+    <div id="editMenu" class="menu-container">
+        <h2>Editar Jogo</h2>
+        <div class="edit-field">
+            <label for="editDuration">Duração (segundos):</label>
+            <input type="number" id="editDuration" value="30" min="5">
+        </div>
+        <div class="edit-field">
+            <label for="editMaxBubbles">Máx Bolhas na Tela:</label>
+            <input type="number" id="editMaxBubbles" value="15" min="1">
+        </div>
+        <div class="edit-field">
+            <label for="editMinSpeed">Velocidade Mínima:</label>
+            <input type="number" id="editMinSpeed" value="0.8" step="0.1" min="0.1">
+        </div>
+        <div class="edit-field">
+            <label for="editMaxSpeed">Velocidade Máxima:</label>
+            <input type="number" id="editMaxSpeed" value="1.5" step="0.1" min="0.1">
+        </div>
+        <div class="edit-field">
+            <label for="editSpawnRate">Frequência Bolhas (0.01-0.1):</label>
+            <input type="number" id="editSpawnRate" value="0.04" step="0.01" min="0.01" max="0.1">
+        </div>
+        <button id="saveConfigBtn" class="game-button">Salvar Configurações</button>
+        <button id="resetLeaderboardBtn" class="game-button" style="background: linear-gradient(145deg, #ff6b6b 0%, #ee3c3c 100%); margin-top: 15px; padding: 10px 25px; font-size: 1.2rem;">
+            Resetar Placar
+        </button>
+        <button id="backToMainMenuFromEdit" class="game-button" style="background: linear-gradient(145deg, #ccc 0%, #999 100%); margin-top: 15px; padding: 10px 25px; font-size: 1.2rem;">
+            Voltar
+        </button>
+    </div>
+
+    <div id="leaderboardMenu" class="menu-container">
+        <h3>Placar de Recordes</h3>
+        <ul id="leaderboardList">
+            </ul>
+        <button id="backToMainMenuFromLeaderboard" class="game-button" style="background: linear-gradient(145deg, #ccc 0%, #999 100%); margin-top: 20px; padding: 15px 40px; font-size: 1.5rem;">
+            Voltar
+        </button>
+    </div>
+
+    <div id="playerNameInputContainer" class="menu-container">
+        <h3>Sua Pontuação: <span id="gameOverScoreDisplay"></span></h3>
+        <input type="text" id="playerNameInput" placeholder="Digite seu nome (até 10 caracteres)" maxlength="10">
+        <button id="submitNameBtn" class="game-button">Salvar Pontuação</button>
+    </div>
+
+
     <script>
-        // --- Variáveis globais do jogo ---
+        // --- Objeto de Configurações do Jogo (seu 'painel de controle') ---
+        const gameConfig = {
+            gameDuration: 30, 
+            maxBubblesOnScreen: 15,
+            bubbleMinRadius: 40, 
+            bubbleMaxRadius: 60, 
+            bubbleMinSpeedY: 0.8,
+            bubbleMaxSpeedY: 1.5,
+            bubbleLateralSpeed: 1, 
+            bubbleSpawnRate: 0.04, 
+            explosionMaxRadius: 60, 
+            explosionSpeed: 4, 
+            explosionFadeSpeed: 0.05, 
+            imageConfigs: [
+              { path: './pessoas/alan.jpg', value: 5, explosionColor: 'hsl(60, 100%, 70%)' },  // Alan
+              { path: './pessoas/joneca.jpg', value: -5, explosionColor: 'hsl(0, 100%, 70%)' }, // Joneca
+              { path: './pessoas/jones.jpg', value: 2, explosionColor: 'hsl(120, 100%, 70%)' }, // Jones
+              { path: './pessoas/wesley.jpg', value: 2, explosionColor: 'hsl(120, 100%, 70%)' },  // Wesley
+              // Adicione mais caminhos aqui se você tiver mais fotos
+            ]
+        };
+
+        // Função para carregar configurações salvas (se existirem)
+        function loadSavedConfig() {
+            const savedConfig = localStorage.getItem('gameConfig');
+            if (savedConfig) {
+                try {
+                    const parsedConfig = JSON.parse(savedConfig);
+                    Object.keys(gameConfig).forEach(key => {
+                        if (key !== 'imageConfigs' && parsedConfig[key] !== undefined) { 
+                            gameConfig[key] = parsedConfig[key];
+                        }
+                    });
+                } catch (e) {
+                    console.error("Erro ao carregar configurações salvas:", e);
+                    localStorage.removeItem('gameConfig');
+                }
+            }
+        }
+        loadSavedConfig(); 
+
+
+        // --- Variáveis globais do jogo (não mudar aqui, use gameConfig acima) ---
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         const fullscreenBtn = document.getElementById('fullscreenBtn');
-        const centerMenu = document.getElementById('centerMenu');
+        
+        // ELEMENTOS DOS MENUS
+        const centerMenu = document.getElementById('centerMenu'); 
         const startButton = document.getElementById('startButton');
-        const restartButton = document.getElementById('restartButton');
+        const restartButton = document.getElementById('restartButton'); 
+        const homeButton = document.getElementById('homeButton'); 
+        const menuBtn = document.getElementById('menuBtn'); 
+        const showLeaderboardBtn = document.getElementById('showLeaderboardBtn'); 
+
+        // ELEMENTOS DO MENU DE EDIÇÃO
+        const editMenu = document.getElementById('editMenu');
+        const editDurationInput = document.getElementById('editDuration');
+        const editMaxBubblesInput = document.getElementById('editMaxBubbles');
+        const editMinSpeedInput = document.getElementById('editMinSpeed');
+        const editMaxSpeedInput = document.getElementById('editMaxSpeed');
+        const editSpawnRateInput = document.getElementById('editSpawnRate');
+        const saveConfigBtn = document.getElementById('saveConfigBtn');
+        const resetLeaderboardBtn = document.getElementById('resetLeaderboardBtn');
+        const backToMainMenuFromEditBtn = document.getElementById('backToMainMenuFromEdit'); 
+
+        // ELEMENTOS DO LEADERBOARD
+        const leaderboardMenu = document.getElementById('leaderboardMenu'); 
+        const leaderboardList = document.getElementById('leaderboardList'); 
+        const backToMainMenuFromLeaderboardBtn = document.getElementById('backToMainMenuFromLeaderboard'); 
+
+        // ELEMENTOS DO INPUT DE NOME PÓS-JOGO
+        const playerNameInputContainer = document.getElementById('playerNameInputContainer'); 
+        const playerNameInput = document.getElementById('playerNameInput'); 
+        const submitNameBtn = document.getElementById('submitNameBtn'); 
+        const gameOverScoreDisplay = document.getElementById('gameOverScoreDisplay'); 
+
 
         let bolhas = [];
         let explosoes = [];
         let score = 0;
-        let gameActive = false; // true = jogo rodando, false = menu/countdown
-        let gameInterval; // Para o timer principal do jogo
-        let timeLeft = 30; // Tempo restante do jogo
-        const gameDuration = 30; // Duração total do jogo
-
-        let preGameCountdown = 3; // Contador antes do jogo iniciar (3, 2, 1)
-        let countdownIntervalId; // Para controlar o intervalo do countdown
+        let gameActive = false; 
+        let gameInterval; 
+        let timeLeft = gameConfig.gameDuration; 
+        
+        let preGameCountdown = 3; 
+        let countdownIntervalId; 
 
         // --- Sons ---
-        // Certifique-se de que a pasta 'sounds' está na raiz do seu projeto 'JOGO'
-        // e que os arquivos de áudio estão lá.
-        const popSound = new Audio('./sounds/pop.mp3'); // Som de estourar a bolha
-        const countdownBeepSound = new Audio('./sounds/beep.mp3'); // Som de beep da contagem inicial
-        const finalCountdownSound = new Audio('./sounds/final_beep.mp3'); // Som da contagem final (últimos 5s)
-        let finalCountdownSoundPlayed = false; // Para garantir que o som final toque uma vez
+        const popSound = new Audio('./sounds/pop.mp3'); 
+        const countdownBeepSound = new Audio('./sounds/beep.mp3'); 
+        const finalCountdownSound = new Audio('./sounds/final_beep.mp3'); 
+        let finalCountdownSoundPlayed = false;
+
+        // Tentar carregar e "preparar" os sons no primeiro clique em algum botão
+        function setupAudioContext() {
+            try {
+                const dummySound = new Audio('./sounds/beep.mp3'); 
+                dummySound.volume = 0.01; 
+                dummySound.play().catch(e => console.log("Áudio context ainda não ativado ou erro: ", e));
+            } catch (e) {
+                console.log("Erro ao tentar ativar contexto de áudio: ", e);
+            }
+
+            popSound.currentTime = 0;
+            countdownBeepSound.currentTime = 0;
+            finalCountdownSound.currentTime = 0;
+        }
 
 
-        // --- Carregamento das Imagens dos Amigos e Configuração de Pontuação ---
-        // CUIDADO: O CAMINHO DA PASTA É './pessoas/'
-        const imageConfigs = [
-          { path: './pessoas/alan.jpg', value: 5, explosionColor: 'hsl(60, 100%, 70%)' },  // Alan
-          { path: './pessoas/joneca.jpg', value: -5, explosionColor: 'hsl(0, 100%, 70%)' }, // Joneca
-          { path: './pessoas/jones.jpg', value: 2, explosionColor: 'hsl(120, 100%, 70%)' }, // Verde
-          { path: './pessoas/wesley.jpg', value: 2, explosionColor: 'hsl(120, 100%, 70%)' },  // Verde
-          // Adicione mais caminhos aqui se você tiver mais fotos
-        ];
-
-        const friendImages = []; // Array para armazenar os objetos Image carregados
+        // --- Carregamento das Imagens dos Amigos ---
+        const friendImages = []; 
 
         function loadImages() {
           let loadedCount = 0;
-          imageConfigs.forEach((config, index) => {
+          gameConfig.imageConfigs.forEach((config, index) => { 
             const img = new Image();
             img.src = config.path;
             img.onload = () => {
               loadedCount++;
               friendImages[index] = { image: img, value: config.value, explosionColor: config.explosionColor };
-              if (loadedCount === imageConfigs.length) {
+              if (loadedCount === gameConfig.imageConfigs.length) { 
                 console.log('Todas as imagens de amigos carregadas!');
               }
             };
@@ -198,7 +531,7 @@
           });
         }
 
-        loadImages(); // Inicia o processo de carregamento das imagens ao carregar o script
+        loadImages(); 
 
         // --- Funções de Utilitário e Animação ---
 
@@ -248,7 +581,7 @@
             explosoes.push({
                 x, y, cor: corBase,
                 raio: 0, 
-                maxRaio: 60,
+                maxRaio: gameConfig.explosionMaxRadius,
                 alpha: 1, 
                 tempo: 0
             });
@@ -258,8 +591,8 @@
             for (let i = explosoes.length - 1; i >= 0; i--) {
                 const e = explosoes[i];
                 
-                e.raio += 4; 
-                e.alpha -= 0.05; 
+                e.raio += gameConfig.explosionSpeed; 
+                e.alpha -= gameConfig.explosionFadeSpeed; 
                 
                 if (e.alpha <= 0 || e.raio > e.maxRaio) {
                     explosoes.splice(i, 1);
@@ -296,19 +629,19 @@
 
         function criarBolha() {
             if (!gameActive) return;
-            if (bolhas.length > 15) return; 
+            if (bolhas.length >= gameConfig.maxBubblesOnScreen) return; 
 
             if (friendImages.length === 0 || friendImages.some(imgData => !imgData.image || !imgData.image.complete)) {
                 console.warn("Imagens ainda não carregadas, bolha não criada.");
                 return; 
             }
 
-            const x = Math.random() * (canvas.width - 2 * 60) + 60;
-            const y = -60; 
-            const raio = Math.random() * 20 + 40; 
+            const x = Math.random() * (canvas.width - 2 * gameConfig.bubbleMaxRadius) + gameConfig.bubbleMaxRadius;
+            const y = -gameConfig.bubbleMaxRadius; 
+            const raio = Math.random() * (gameConfig.bubbleMaxRadius - gameConfig.bubbleMinRadius) + gameConfig.bubbleMinRadius;
             
-            const velocidadeY = (Math.random() * 1.5 + 0.8) * (canvas.height / 800);
-            const velocidadeX = ((Math.random() - 0.5) * 1) * (canvas.width / 1200);
+            const velocidadeY = (Math.random() * (gameConfig.bubbleMaxSpeedY - gameConfig.bubbleMinSpeedY) + gameConfig.bubbleMinSpeedY) * (canvas.height / 800);
+            const velocidadeX = ((Math.random() - 0.5) * gameConfig.bubbleLateralSpeed) * (canvas.width / 1200);
 
             const randomImageConfig = friendImages[Math.floor(Math.random() * friendImages.length)];
             
@@ -325,13 +658,13 @@
         }
 
         function animar() {
-            if (!gameActive && explosoes.length === 0 && preGameCountdown <= 0) {
+            if (!gameActive && explosoes.length === 0 && preGameCountdown <= 0 && playerNameInputContainer.style.display !== 'flex' && leaderboardMenu.style.display !== 'flex' && editMenu.style.display !== 'flex') {
                 return; 
             }
             
             ctx.clearRect(0, 0, canvas.width, canvas.height); 
 
-            // Exibe contagem regressiva pré-jogo se o jogo não estiver ativo mas o countdown sim
+            // Exibe contagem regressiva pré-jogo
             if (!gameActive && preGameCountdown > 0) {
                 ctx.fillStyle = '#fff';
                 ctx.font = 'bold 5rem Arial';
@@ -368,7 +701,7 @@
                 desenharFotoCircular(b); 
             }
             
-            if (gameActive && Math.random() < 0.04) criarBolha();
+            if (gameActive && Math.random() < gameConfig.bubbleSpawnRate) criarBolha();
 
             desenharExplosoes();
 
@@ -378,12 +711,19 @@
         // --- Funções de Controle do Jogo ---
 
         function startGame() {
+            console.log("startGame: Botão INICIAR clicado.");
+            setupAudioContext(); 
+
             score = 0;
-            timeLeft = gameDuration;
+            timeLeft = gameConfig.gameDuration; 
             bolhas.length = 0;
             explosoes.length = 0;
             gameActive = false; 
             centerMenu.style.display = 'none'; 
+            menuBtn.style.display = 'none'; 
+            leaderboardMenu.style.display = 'none'; 
+            editMenu.style.display = 'none'; 
+            playerNameInputContainer.style.display = 'none'; 
 
             preGameCountdown = 3; 
             finalCountdownSoundPlayed = false; 
@@ -396,26 +736,30 @@
 
             countdownIntervalId = setInterval(() => {
                 preGameCountdown--;
+                console.log("Countdown: " + preGameCountdown); 
                 if (preGameCountdown > 0) {
-                    countdownBeepSound.play(); // Toca o som do beep
+                    countdownBeepSound.currentTime = 0; 
+                    countdownBeepSound.play().catch(e => console.log("Erro ao tocar beep: ", e)); 
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
                     ctx.fillText(preGameCountdown, canvas.width / 2, canvas.height / 2);
                 } else {
                     clearInterval(countdownIntervalId); 
-                    countdownBeepSound.play(); // Último beep do countdown
+                    countdownBeepSound.currentTime = 0; 
+                    countdownBeepSound.play().catch(e => console.log("Erro ao tocar ultimo beep: ", e)); 
                     startActualGame(); 
                 }
             }, 1000);
-
-            // animar() será chamada apenas no startActualGame()
         }
 
         function startActualGame() {
+            console.log("startActualGame: Jogo iniciado de verdade!"); 
             gameActive = true; 
             gameInterval = setInterval(() => {
                 timeLeft--;
+                console.log("Tempo restante: " + timeLeft); 
                 if (timeLeft <= 5 && timeLeft > 0 && !finalCountdownSoundPlayed) {
-                    finalCountdownSound.play(); 
+                    finalCountdownSound.currentTime = 0; 
+                    finalCountdownSound.play().catch(e => console.log("Erro ao tocar som final: ", e)); 
                     finalCountdownSoundPlayed = true; 
                 }
                 if (timeLeft <= 0) {
@@ -429,6 +773,7 @@
         }
 
         function displayGameOverScreen() {
+            console.log("displayGameOverScreen: Jogo acabou."); 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -440,18 +785,73 @@
             ctx.shadowBlur = 16;
             ctx.fillText('FIM DE JOGO!', canvas.width / 2, canvas.height / 2 - 60);
 
-            ctx.font = 'bold 2.5rem Arial';
-            ctx.shadowBlur = 8;
-            ctx.fillText(`Sua Pontuação Final: ${score}`, canvas.width / 2, canvas.height / 2 + 10);
-            ctx.shadowBlur = 0;
-
-            restartButton.style.display = 'block';
-            startButton.style.display = 'none';
-            centerMenu.style.display = 'flex';
-            centerMenu.style.top = `calc(50% + 80px)`;
-            centerMenu.style.left = '50%';
-            centerMenu.style.transform = 'translate(-50%, 0)';
+            gameOverScoreDisplay.textContent = score; 
+            playerNameInput.value = ''; 
+            playerNameInputContainer.style.display = 'flex'; 
+            playerNameInput.focus(); 
+            
+            menuBtn.style.display = 'none'; 
+            // Ocultamos startButton aqui para garantir que ele não apareça
+            startButton.style.display = 'none'; // Adicionado para garantir ocultação
         }
+
+        // --- Funções do Leaderboard ---
+        const MAX_LEADERBOARD_ENTRIES = 10;
+
+        function getLeaderboard() {
+            const leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
+            return leaderboard.sort((a, b) => b.score - a.score); 
+        }
+
+        function saveScore(name, finalScore) {
+            const leaderboard = getLeaderboard();
+            leaderboard.push({ name, score: finalScore });
+            const sortedLeaderboard = leaderboard.sort((a, b) => b.score - a.score);
+            const top10Leaderboard = sortedLeaderboard.slice(0, MAX_LEADERBOARD_ENTRIES);
+            localStorage.setItem('leaderboard', JSON.stringify(top10Leaderboard));
+            displayLeaderboard(); 
+        }
+
+        function displayLeaderboard() {
+            const leaderboard = getLeaderboard();
+            leaderboardList.innerHTML = ''; 
+
+            if (leaderboard.length === 0) {
+                const li = document.createElement('li');
+                li.textContent = "Nenhum recorde ainda!";
+                leaderboardList.appendChild(li);
+                return;
+            }
+
+            leaderboard.forEach((entry, index) => {
+                const li = document.createElement('li');
+                let medalClass = '';
+                if (index === 0) medalClass = 'medal-gold';
+                else if (index === 1) medalClass = 'medal-silver';
+                else if (index === 2) medalClass = 'medal-bronze';
+
+                li.innerHTML = `
+                    <span class="leaderboard-name ${medalClass}">${index + 1}. ${entry.name}</span>
+                    <span class="leaderboard-score ${medalClass}">${entry.score}</span>
+                `;
+                leaderboardList.appendChild(li);
+            });
+        }
+
+        function resetLeaderboard() {
+            if (confirm("Tem certeza que deseja resetar o placar de recordes?")) {
+                localStorage.removeItem('leaderboard');
+                console.log("Placar de recordes resetado!");
+                editMenu.style.display = 'none';
+                centerMenu.style.display = 'flex';
+                startButton.style.display = 'block'; // Garante que INICIAR apareça após resetar
+                restartButton.style.display = 'none';
+                homeButton.style.display = 'none';
+                menuBtn.style.display = 'block';
+                displayLeaderboard(); 
+            }
+        }
+
 
         // --- Eventos de Interação ---
 
@@ -467,7 +867,7 @@
                 const dx = mx - b.x, dy = my - b.y;
                 
                 if (dx*dx + dy*dy < b.raio*b.raio) {
-                    popSound.play(); // Toca o som de estourar a bolha
+                    popSound.play().catch(e => console.log("Erro ao tocar pop: ", e)); 
                     criarExplosao(b.x, b.y, b.explosionColor); 
                     bolhas.splice(i, 1);
                     
@@ -488,16 +888,105 @@
         };
 
         startButton.onclick = startGame;
+        // Botão REINICIAR na tela de game over
         restartButton.onclick = () => {
-            restartButton.style.display = 'none';
-            centerMenu.style.top = '50%';
-            centerMenu.style.transform = 'translate(-50%,-50%)';
-            startGame();
+            playerNameInputContainer.style.display = 'none'; 
+            restartButton.style.display = 'none'; 
+            homeButton.style.display = 'none'; 
+            startGame(); 
+        };
+        // Botão INÍCIO na tela de game over
+        homeButton.onclick = () => {
+            playerNameInputContainer.style.display = 'none'; 
+            restartButton.style.display = 'none'; 
+            homeButton.style.display = 'none'; 
+            centerMenu.style.display = 'flex'; 
+            startButton.style.display = 'block'; // Garante que INICIAR apareça ao voltar para o menu principal
+            menuBtn.style.display = 'block'; 
+            displayLeaderboard(); 
         };
 
-        // --- Inicialização do Jogo ---
-        centerMenu.style.display = 'flex'; 
-        restartButton.style.display = 'none'; 
+        // Evento para mostrar o menu de edição
+        menuBtn.onclick = () => {
+            console.log("Botão MENU clicado!");
+            centerMenu.style.display = 'none'; 
+            leaderboardMenu.style.display = 'none'; 
+            playerNameInputContainer.style.display = 'none'; 
+            editMenu.style.display = 'flex'; 
+            populateEditMenu(); 
+        };
+
+        // Evento para mostrar o placar de recordes
+        showLeaderboardBtn.onclick = () => {
+            console.log("Botão Placar de Recordes clicado!");
+            centerMenu.style.display = 'none'; 
+            editMenu.style.display = 'none'; 
+            playerNameInputContainer.style.display = 'none'; 
+            leaderboardMenu.style.display = 'flex'; 
+            displayLeaderboard(); 
+        };
+
+        // Botão de voltar do menu de edição
+        backToMainMenuFromEditBtn.onclick = () => {
+            editMenu.style.display = 'none';
+            centerMenu.style.display = 'flex';
+            startButton.style.display = 'block'; // Garante que INICIAR apareça
+            restartButton.style.display = 'none'; // Esconde Reiniciar
+            homeButton.style.display = 'none'; // Esconde Início
+            menuBtn.style.display = 'block';
+            displayLeaderboard(); 
+        };
+
+        // Botão de voltar do menu do placar
+        backToMainMenuFromLeaderboardBtn.onclick = () => {
+            leaderboardMenu.style.display = 'none';
+            centerMenu.style.display = 'flex';
+            startButton.style.display = 'block'; // Garante que INICIAR apareça
+            restartButton.style.display = 'none'; // Esconde Reiniciar
+            homeButton.style.display = 'none'; // Esconde Início
+            menuBtn.style.display = 'block';
+            displayLeaderboard(); 
+        };
+
+
+        // Evento para o botão de salvar nome após o jogo
+        submitNameBtn.onclick = () => {
+            let playerName = playerNameInput.value.trim(); 
+            if (playerName === "") {
+                playerName = "Jogador Anônimo"; 
+            }
+            saveScore(playerName, score); 
+            playerNameInputContainer.style.display = 'none'; 
+            centerMenu.style.display = 'flex'; 
+            startButton.style.display = 'none'; // Garante que INICIAR não apareça aqui
+            restartButton.style.display = 'block'; 
+            homeButton.style.display = 'block'; 
+            displayLeaderboard(); 
+        };
+
+        // Evento para o botão de resetar placar
+        resetLeaderboardBtn.onclick = resetLeaderboard;
+
+
+        // --- Funções para o Menu de Edição (reuso de funções existentes) ---
+        // populateEditMenu já existe
+        // saveConfigBtn.onclick já existe
+
+
+        // --- Inicialização do Jogo ao Carregar a Página ---
+        // Garante que apenas o menu principal e os botões corretos sejam visíveis inicialmente
+        function initializeGameDisplay() {
+            centerMenu.style.display = 'flex'; 
+            startButton.style.display = 'block'; // INICIAR visível na tela principal
+            restartButton.style.display = 'none'; 
+            homeButton.style.display = 'none'; 
+            menuBtn.style.display = 'block'; 
+            leaderboardMenu.style.display = 'none'; 
+            playerNameInputContainer.style.display = 'none'; 
+            editMenu.style.display = 'none'; 
+            displayLeaderboard(); 
+        }
+        initializeGameDisplay(); 
     </script> 
 </body>
 </html>
