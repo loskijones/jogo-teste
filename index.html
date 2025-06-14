@@ -151,20 +151,31 @@
         let bolhas = [];
         let explosoes = [];
         let score = 0;
-        let gameActive = false;
-        let gameInterval;
-        let timeLeft = 30;
-        const gameDuration = 30;
+        let gameActive = false; // true = jogo rodando, false = menu/countdown
+        let gameInterval; // Para o timer principal do jogo
+        let timeLeft = 30; // Tempo restante do jogo
+        const gameDuration = 30; // Duração total do jogo
+
+        let preGameCountdown = 3; // Contador antes do jogo iniciar (3, 2, 1)
+        let countdownIntervalId; // Para controlar o intervalo do countdown
+
+        // --- Sons ---
+        // Certifique-se de que a pasta 'sounds' está na raiz do seu projeto 'JOGO'
+        // e que os arquivos de áudio estão lá.
+        const popSound = new Audio('./sounds/pop.mp3'); // Som de estourar a bolha
+        const countdownBeepSound = new Audio('./sounds/beep.mp3'); // Som de beep da contagem inicial
+        const finalCountdownSound = new Audio('./sounds/final_beep.mp3'); // Som da contagem final (últimos 5s)
+        let finalCountdownSoundPlayed = false; // Para garantir que o som final toque uma vez
+
 
         // --- Carregamento das Imagens dos Amigos e Configuração de Pontuação ---
-        // CUIDADO: O CAMINHO DA PASTA AGORA É './pessoas/'
+        // CUIDADO: O CAMINHO DA PASTA É './pessoas/'
         const imageConfigs = [
           { path: './pessoas/alan.jpg', value: 5, explosionColor: 'hsl(60, 100%, 70%)' },  // Alan
           { path: './pessoas/joneca.jpg', value: -5, explosionColor: 'hsl(0, 100%, 70%)' }, // Joneca
-          { path: './pessoas/jones.jpg', value: 2, explosionColor: 'hsl(120, 100%, 70%)' }, // Jones
-          { path: './pessoas/wesley.jpg', value: 2, explosionColor: 'hsl(120, 100%, 70%)' },  // Wesley
+          { path: './pessoas/jones.jpg', value: 2, explosionColor: 'hsl(120, 100%, 70%)' }, // Verde
+          { path: './pessoas/wesley.jpg', value: 2, explosionColor: 'hsl(120, 100%, 70%)' },  // Verde
           // Adicione mais caminhos aqui se você tiver mais fotos
-          // Exemplo: { path: './pessoas/seu_amigo5.jpg', value: 10, explosionColor: 'hsl(200, 100%, 70%)' },
         ];
 
         const friendImages = []; // Array para armazenar os objetos Image carregados
@@ -288,18 +299,16 @@
             if (bolhas.length > 15) return; 
 
             if (friendImages.length === 0 || friendImages.some(imgData => !imgData.image || !imgData.image.complete)) {
-                // Se as imagens não carregaram, a bolha não é criada.
-                // Isso evita erros de tentar desenhar imagem não carregada.
                 console.warn("Imagens ainda não carregadas, bolha não criada.");
                 return; 
             }
 
             const x = Math.random() * (canvas.width - 2 * 60) + 60;
-            const y = -60; // Começa acima da tela
-            const raio = Math.random() * 20 + 40; // Raio entre 40 e 60
+            const y = -60; 
+            const raio = Math.random() * 20 + 40; 
             
-            const velocidadeY = (Math.random() * 1.5 + 0.8) * (canvas.height / 800); // Velocidade de queda
-            const velocidadeX = ((Math.random() - 0.5) * 1) * (canvas.width / 1200); // Velocidade lateral
+            const velocidadeY = (Math.random() * 1.5 + 0.8) * (canvas.height / 800);
+            const velocidadeX = ((Math.random() - 0.5) * 1) * (canvas.width / 1200);
 
             const randomImageConfig = friendImages[Math.floor(Math.random() * friendImages.length)];
             
@@ -316,14 +325,22 @@
         }
 
         function animar() {
-            // O loop de animação continua rodando se o jogo estiver ativo OU se houver explosões a serem desenhadas
-            if (!gameActive && explosoes.length === 0) {
-                return; // Para a animação do requestAnimationFrame
+            if (!gameActive && explosoes.length === 0 && preGameCountdown <= 0) {
+                return; 
             }
             
-            ctx.clearRect(0, 0, canvas.width, canvas.height); // Limpa o canvas a cada frame
+            ctx.clearRect(0, 0, canvas.width, canvas.height); 
 
-            // Exibe pontuação e tempo
+            // Exibe contagem regressiva pré-jogo se o jogo não estiver ativo mas o countdown sim
+            if (!gameActive && preGameCountdown > 0) {
+                ctx.fillStyle = '#fff';
+                ctx.font = 'bold 5rem Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(preGameCountdown, canvas.width / 2, canvas.height / 2);
+                requestAnimationFrame(animar); 
+                return; 
+            }
+
             ctx.fillStyle = '#fff'; 
             ctx.font = 'bold 2.2rem Arial';
             ctx.textAlign = 'left';
@@ -334,35 +351,28 @@
             ctx.fillText(`Tempo: ${timeLeft}s`, canvas.width - 32, 56);
             ctx.shadowBlur = 0;
 
-            // --- AQUI É ONDE AS BOLHAS SE MOVEM E SÃO REMOVIDAS ---
-            for (let i = bolhas.length - 1; i >= 0; i--) { // Loop de trás para frente para remoção segura
+            for (let i = bolhas.length - 1; i >= 0; i--) { 
                 const b = bolhas[i];
                 
-                // ATUALIZA A POSIÇÃO DA BOLHA: FAZ ELA DESCER E SE MOVER PARA OS LADOS
-                b.y += b.velocidadeY; // Faz a bolha descer
-                b.x += b.velocidadeX; // Faz a bolha se mover para os lados
+                b.y += b.velocidadeY;
+                b.x += b.velocidadeX;
 
-                // REMOÇÃO E REFLEXÃO DE BORDAS:
-                // Se a bolha saiu da tela por baixo, remove ela
-                if (b.y - b.raio > canvas.height) { // Verifica se a bolha está completamente fora da tela
+                if (b.y - b.raio > canvas.height) {
                     bolhas.splice(i, 1);
-                    continue; // Pula para a próxima bolha no loop
+                    continue; 
                 }
-                // Se a bolha atingiu as bordas laterais, inverte a direção horizontal
                 if (b.x + b.raio < 0 || b.x - b.raio > canvas.width) {
-                    b.velocidadeX *= -1; // Inverte a velocidade X
+                    b.velocidadeX *= -1; 
                 }
 
-                desenharFotoCircular(b); // Desenha a bolha na nova posição
+                desenharFotoCircular(b); 
             }
             
-            // Cria novas bolhas aleatoriamente se o jogo estiver ativo
             if (gameActive && Math.random() < 0.04) criarBolha();
 
-            // Desenha as animações de explosão
             desenharExplosoes();
 
-            requestAnimationFrame(animar); // Solicita o próximo quadro de animação
+            requestAnimationFrame(animar); 
         }
 
         // --- Funções de Controle do Jogo ---
@@ -372,11 +382,42 @@
             timeLeft = gameDuration;
             bolhas.length = 0;
             explosoes.length = 0;
-            gameActive = true;
-            centerMenu.style.display = 'none';
-            
+            gameActive = false; 
+            centerMenu.style.display = 'none'; 
+
+            preGameCountdown = 3; 
+            finalCountdownSoundPlayed = false; 
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 5rem Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(preGameCountdown, canvas.width / 2, canvas.height / 2);
+
+            countdownIntervalId = setInterval(() => {
+                preGameCountdown--;
+                if (preGameCountdown > 0) {
+                    countdownBeepSound.play(); // Toca o som do beep
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    ctx.fillText(preGameCountdown, canvas.width / 2, canvas.height / 2);
+                } else {
+                    clearInterval(countdownIntervalId); 
+                    countdownBeepSound.play(); // Último beep do countdown
+                    startActualGame(); 
+                }
+            }, 1000);
+
+            // animar() será chamada apenas no startActualGame()
+        }
+
+        function startActualGame() {
+            gameActive = true; 
             gameInterval = setInterval(() => {
                 timeLeft--;
+                if (timeLeft <= 5 && timeLeft > 0 && !finalCountdownSoundPlayed) {
+                    finalCountdownSound.play(); 
+                    finalCountdownSoundPlayed = true; 
+                }
                 if (timeLeft <= 0) {
                     clearInterval(gameInterval);
                     gameActive = false;
@@ -384,7 +425,7 @@
                 }
             }, 1000);
 
-            animar(); // Inicia o loop de animação
+            animar(); 
         }
 
         function displayGameOverScreen() {
@@ -426,6 +467,7 @@
                 const dx = mx - b.x, dy = my - b.y;
                 
                 if (dx*dx + dy*dy < b.raio*b.raio) {
+                    popSound.play(); // Toca o som de estourar a bolha
                     criarExplosao(b.x, b.y, b.explosionColor); 
                     bolhas.splice(i, 1);
                     
@@ -454,8 +496,8 @@
         };
 
         // --- Inicialização do Jogo ---
-        centerMenu.style.display = 'flex';
-        restartButton.style.display = 'none';
+        centerMenu.style.display = 'flex'; 
+        restartButton.style.display = 'none'; 
     </script> 
 </body>
 </html>
