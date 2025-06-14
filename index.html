@@ -16,7 +16,7 @@
             font-family: 'Arial', sans-serif; /* Fonte padrão */
         }
 
-        /* Estilo do Canvas para preencher a tela com um gradiente */
+        /* Estilo do Canvas para preencher a tela com uma IMAGEM de fundo */
         #gameCanvas {
             display: block; /* Remove espaços extras */
             position: absolute;
@@ -105,7 +105,7 @@
             border-radius: 15px;
             padding: 30px;
             color: #fff;
-            display: none; /* AGORA TODOS ESTÃO OCULTOS POR PADRÃO PELO CSS */
+            display: none; /* Oculto por padrão, controlado pelo JS */
             flex-direction: column;
             align-items: center;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
@@ -185,7 +185,7 @@
             margin-bottom: 0;
         }
 
-        /* --- Estilos do Menu de Edição (reuso de .menu-container) --- */
+        /* --- Estilos do Menu de Edição --- */
         #editMenu {
             /* display: none; controlado pelo JS */
         }
@@ -195,6 +195,7 @@
             font-size: 2.2rem;
             text-shadow: 0 2px 10px rgba(0,0,0,0.8);
         }
+        /* Ajusta o campo de edição para permitir múltiplos inputs por amigo */
         .edit-field {
             display: flex;
             justify-content: space-between;
@@ -208,7 +209,7 @@
             flex-basis: 60%;
             text-align: left;
         }
-        .edit-field input[type="number"] {
+        .edit-field input[type="number"], .edit-field input[type="text"] { /* Permite text também */
             flex-basis: 35%;
             padding: 8px;
             border-radius: 8px;
@@ -218,6 +219,35 @@
             font-size: 1.1rem;
             text-align: center;
         }
+        /* Estilos para os campos de edição de amigos */
+        .friend-edit-field {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 90%; /* Mais largo para caber nome e valor */
+            margin-bottom: 10px;
+            font-size: 1rem;
+            font-weight: bold;
+            background: rgba(255,255,255,0.1);
+            padding: 8px;
+            border-radius: 5px;
+        }
+        .friend-edit-field .friend-name {
+            flex-basis: 50%;
+            text-align: left;
+            color: #fff;
+        }
+        .friend-edit-field input {
+            flex-basis: 45%;
+            padding: 5px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            background-color: #f0f0f0;
+            color: #333;
+            font-size: 1.1rem; /* Ajuste o tamanho da fonte aqui para o input do amigo */
+            text-align: center;
+        }
+
         #saveConfigBtn {
             background: linear-gradient(145deg, #a8ff78 0%, #78ffd6 100%); /* Gradiente verde/azul */
             border: none;
@@ -374,6 +404,8 @@
             <label for="editSpawnRate">Frequência Bolhas (0.01-0.1):</label>
             <input type="number" id="editSpawnRate" value="0.04" step="0.01" min="0.01" max="0.1">
         </div>
+        <div id="friendScoreEditFields" style="width: 100%; display: flex; flex-direction: column; align-items: center; margin-top: 15px;">
+            </div>
         <button id="saveConfigBtn" class="game-button">Salvar Configurações</button>
         <button id="resetLeaderboardBtn" class="game-button" style="background: linear-gradient(145deg, #ff6b6b 0%, #ee3c3c 100%); margin-top: 15px; padding: 10px 25px; font-size: 1.2rem;">
             Resetar Placar
@@ -413,14 +445,19 @@
             explosionMaxRadius: 60, 
             explosionSpeed: 4, 
             explosionFadeSpeed: 0.05, 
-            imageConfigs: [
-              { path: './pessoas/alan.jpg', value: 5, explosionColor: 'hsl(60, 100%, 70%)' },  // Alan
-              { path: './pessoas/joneca.jpg', value: -5, explosionColor: 'hsl(0, 100%, 70%)' }, // Joneca
-              { path: './pessoas/jones.jpg', value: 2, explosionColor: 'hsl(120, 100%, 70%)' }, // Jones
-              { path: './pessoas/wesley.jpg', value: 2, explosionColor: 'hsl(120, 100%, 70%)' },  // Wesley
-              // Adicione mais caminhos aqui se você tiver mais fotos
-            ]
+            // imageConfigs será preenchido por defaultImageConfigs ou localStorage
+            imageConfigs: [] 
         };
+
+        // Configurações padrão das imagens (se não houver nada salvo ou se resetar)
+        // Adicione um campo 'name' para facilitar a exibição no menu de edição
+        const defaultImageConfigs = [
+            { name: 'Alan', path: './pessoas/alan.jpg', value: 5, explosionColor: 'hsl(60, 100%, 70%)' },
+            { name: 'Joneca', path: './pessoas/joneca.jpg', value: -5, explosionColor: 'hsl(0, 100%, 70%)' },
+            { name: 'Jones', path: './pessoas/jones.jpg', value: 2, explosionColor: 'hsl(120, 100%, 70%)' },
+            { name: 'Wesley', path: './pessoas/wesley.jpg', value: 2, explosionColor: 'hsl(120, 100%, 70%)' },
+        ];
+
 
         // Função para carregar configurações salvas (se existirem)
         function loadSavedConfig() {
@@ -433,10 +470,29 @@
                             gameConfig[key] = parsedConfig[key];
                         }
                     });
+                    // Carrega as configurações das imagens separadamente
+                    if (parsedConfig.imageConfigs && Array.isArray(parsedConfig.imageConfigs) && parsedConfig.imageConfigs.length > 0) {
+                        // Validação básica para garantir que as imagens padrão existam
+                        // Isso evita erros se você mudar as imagens padrão e houver configurações antigas salvas
+                        gameConfig.imageConfigs = parsedConfig.imageConfigs.filter(savedImg => 
+                            defaultImageConfigs.some(defaultImg => defaultImg.path === savedImg.path)
+                        );
+                        // Adiciona quaisquer novas imagens padrão que não estavam salvas antes
+                        defaultImageConfigs.forEach(defaultImg => {
+                            if (!gameConfig.imageConfigs.some(savedImg => savedImg.path === defaultImg.path)) {
+                                gameConfig.imageConfigs.push(defaultImg);
+                            }
+                        });
+                    } else {
+                        gameConfig.imageConfigs = [...defaultImageConfigs]; 
+                    }
                 } catch (e) {
-                    console.error("Erro ao carregar configurações salvas:", e);
+                    console.error("Erro ao carregar configurações salvas, resetando:", e);
                     localStorage.removeItem('gameConfig');
+                    gameConfig.imageConfigs = [...defaultImageConfigs]; 
                 }
+            } else {
+                gameConfig.imageConfigs = [...defaultImageConfigs]; 
             }
         }
         loadSavedConfig(); 
@@ -447,8 +503,13 @@
         const ctx = canvas.getContext('2d');
         const fullscreenBtn = document.getElementById('fullscreenBtn');
         
-        // ELEMENTOS DOS MENUS
+        // ELEMENTOS DOS MENUS (referências aos divs)
         const centerMenu = document.getElementById('centerMenu'); 
+        const editMenu = document.getElementById('editMenu');
+        const leaderboardMenu = document.getElementById('leaderboardMenu'); 
+        const playerNameInputContainer = document.getElementById('playerNameInputContainer'); 
+
+        // BOTÕES PRINCIPAIS
         const startButton = document.getElementById('startButton');
         const restartButton = document.getElementById('restartButton'); 
         const homeButton = document.getElementById('homeButton'); 
@@ -456,7 +517,6 @@
         const showLeaderboardBtn = document.getElementById('showLeaderboardBtn'); 
 
         // ELEMENTOS DO MENU DE EDIÇÃO
-        const editMenu = document.getElementById('editMenu');
         const editDurationInput = document.getElementById('editDuration');
         const editMaxBubblesInput = document.getElementById('editMaxBubbles');
         const editMinSpeedInput = document.getElementById('editMinSpeed');
@@ -466,13 +526,14 @@
         const resetLeaderboardBtn = document.getElementById('resetLeaderboardBtn');
         const backToMainMenuFromEditBtn = document.getElementById('backToMainMenuFromEdit'); 
 
+        const friendScoreEditFields = document.getElementById('friendScoreEditFields');
+
+
         // ELEMENTOS DO LEADERBOARD
-        const leaderboardMenu = document.getElementById('leaderboardMenu'); 
         const leaderboardList = document.getElementById('leaderboardList'); 
         const backToMainMenuFromLeaderboardBtn = document.getElementById('backToMainMenuFromLeaderboard'); 
 
         // ELEMENTOS DO INPUT DE NOME PÓS-JOGO
-        const playerNameInputContainer = document.getElementById('playerNameInputContainer'); 
         const playerNameInput = document.getElementById('playerNameInput'); 
         const submitNameBtn = document.getElementById('submitNameBtn'); 
         const gameOverScoreDisplay = document.getElementById('gameOverScoreDisplay'); 
@@ -515,18 +576,20 @@
 
         function loadImages() {
           let loadedCount = 0;
+          friendImages.length = 0; // Limpa o array antes de recarregar
           gameConfig.imageConfigs.forEach((config, index) => { 
             const img = new Image();
             img.src = config.path;
             img.onload = () => {
               loadedCount++;
-              friendImages[index] = { image: img, value: config.value, explosionColor: config.explosionColor };
+              friendImages[index] = { image: img, value: config.value, explosionColor: config.explosionColor, name: config.name }; // Inclui o nome do amigo
               if (loadedCount === gameConfig.imageConfigs.length) { 
                 console.log('Todas as imagens de amigos carregadas!');
               }
             };
             img.onerror = () => {
               console.error(`Erro ao carregar imagem: ${config.path}. Verifique o caminho e o nome do arquivo.`);
+              friendImages[index] = { image: null, value: config.value, explosionColor: 'gray', name: config.name }; // Fallback
             };
           });
         }
@@ -769,7 +832,7 @@
                 }
             }, 1000);
 
-            animar(); 
+            requestAnimationFrame(animar); 
         }
 
         function displayGameOverScreen() {
@@ -791,8 +854,7 @@
             playerNameInput.focus(); 
             
             menuBtn.style.display = 'none'; 
-            // Ocultamos startButton aqui para garantir que ele não apareça
-            startButton.style.display = 'none'; // Adicionado para garantir ocultação
+            startButton.style.display = 'none'; 
         }
 
         // --- Funções do Leaderboard ---
@@ -844,7 +906,7 @@
                 console.log("Placar de recordes resetado!");
                 editMenu.style.display = 'none';
                 centerMenu.style.display = 'flex';
-                startButton.style.display = 'block'; // Garante que INICIAR apareça após resetar
+                startButton.style.display = 'block'; 
                 restartButton.style.display = 'none';
                 homeButton.style.display = 'none';
                 menuBtn.style.display = 'block';
@@ -901,7 +963,7 @@
             restartButton.style.display = 'none'; 
             homeButton.style.display = 'none'; 
             centerMenu.style.display = 'flex'; 
-            startButton.style.display = 'block'; // Garante que INICIAR apareça ao voltar para o menu principal
+            startButton.style.display = 'block'; 
             menuBtn.style.display = 'block'; 
             displayLeaderboard(); 
         };
@@ -930,9 +992,9 @@
         backToMainMenuFromEditBtn.onclick = () => {
             editMenu.style.display = 'none';
             centerMenu.style.display = 'flex';
-            startButton.style.display = 'block'; // Garante que INICIAR apareça
-            restartButton.style.display = 'none'; // Esconde Reiniciar
-            homeButton.style.display = 'none'; // Esconde Início
+            startButton.style.display = 'block'; 
+            restartButton.style.display = 'none'; 
+            homeButton.style.display = 'none'; 
             menuBtn.style.display = 'block';
             displayLeaderboard(); 
         };
@@ -941,9 +1003,9 @@
         backToMainMenuFromLeaderboardBtn.onclick = () => {
             leaderboardMenu.style.display = 'none';
             centerMenu.style.display = 'flex';
-            startButton.style.display = 'block'; // Garante que INICIAR apareça
-            restartButton.style.display = 'none'; // Esconde Reiniciar
-            homeButton.style.display = 'none'; // Esconde Início
+            startButton.style.display = 'block'; 
+            restartButton.style.display = 'none'; 
+            homeButton.style.display = 'none'; 
             menuBtn.style.display = 'block';
             displayLeaderboard(); 
         };
@@ -958,7 +1020,7 @@
             saveScore(playerName, score); 
             playerNameInputContainer.style.display = 'none'; 
             centerMenu.style.display = 'flex'; 
-            startButton.style.display = 'none'; // Garante que INICIAR não apareça aqui
+            startButton.style.display = 'none'; 
             restartButton.style.display = 'block'; 
             homeButton.style.display = 'block'; 
             displayLeaderboard(); 
@@ -969,15 +1031,58 @@
 
 
         // --- Funções para o Menu de Edição (reuso de funções existentes) ---
-        // populateEditMenu já existe
-        // saveConfigBtn.onclick já existe
+        // Preenche os campos do menu de edição com os valores atuais de gameConfig
+        function populateEditMenu() {
+            editDurationInput.value = gameConfig.gameDuration;
+            editMaxBubblesInput.value = gameConfig.maxBubblesOnScreen;
+            editMinSpeedInput.value = gameConfig.bubbleMinSpeedY;
+            editMaxSpeedInput.value = gameConfig.bubbleMaxSpeedY;
+            editSpawnRateInput.value = gameConfig.bubbleSpawnRate;
+
+            friendScoreEditFields.innerHTML = ''; 
+            gameConfig.imageConfigs.forEach((friend, index) => {
+                const div = document.createElement('div');
+                div.className = 'friend-edit-field';
+                div.innerHTML = `
+                    <span class="friend-name">${friend.name}:</span>
+                    <input type="number" id="editFriendScore_${index}" value="${friend.value}" class="friend-score-input">
+                `;
+                friendScoreEditFields.appendChild(div);
+            });
+        }
+
+        // Salva as configurações do menu de edição no gameConfig e fecha o menu
+        saveConfigBtn.onclick = () => {
+            // Atualiza gameConfig com os valores dos inputs gerais
+            gameConfig.gameDuration = parseInt(editDurationInput.value);
+            gameConfig.maxBubblesOnScreen = parseInt(editMaxBubblesInput.value);
+            gameConfig.bubbleMinSpeedY = parseFloat(editMinSpeedInput.value);
+            gameConfig.bubbleMaxSpeedY = parseFloat(editMaxSpeedInput.value);
+            gameConfig.bubbleSpawnRate = parseFloat(editSpawnRateInput.value);
+
+            // Atualiza gameConfig.imageConfigs com os novos valores de pontuação
+            gameConfig.imageConfigs.forEach((friend, index) => {
+                const input = document.getElementById(`editFriendScore_${index}`);
+                if (input) {
+                    friend.value = parseInt(input.value); 
+                }
+            });
+
+            localStorage.setItem('gameConfig', JSON.stringify(gameConfig));
+
+            console.log("Configurações salvas:", gameConfig);
+            editMenu.style.display = 'none'; 
+            centerMenu.style.display = 'flex'; 
+            menuBtn.style.display = 'block'; 
+            displayLeaderboard(); 
+            loadImages(); 
+        };
 
 
         // --- Inicialização do Jogo ao Carregar a Página ---
-        // Garante que apenas o menu principal e os botões corretos sejam visíveis inicialmente
         function initializeGameDisplay() {
             centerMenu.style.display = 'flex'; 
-            startButton.style.display = 'block'; // INICIAR visível na tela principal
+            startButton.style.display = 'block'; 
             restartButton.style.display = 'none'; 
             homeButton.style.display = 'none'; 
             menuBtn.style.display = 'block'; 
